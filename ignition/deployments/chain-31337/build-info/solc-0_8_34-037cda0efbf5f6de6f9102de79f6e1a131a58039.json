@@ -1,0 +1,49 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_34-037cda0efbf5f6de6f9102de79f6e1a131a58039",
+  "solcVersion": "0.8.34",
+  "solcLongVersion": "0.8.34+commit.80d5c536",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.19.0"
+  },
+  "userSourceNameMap": {
+    "contracts/Guestbook.sol": "project/contracts/Guestbook.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "osaka",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/Guestbook.sol": {
+        "content": "\n // SPDX-License-Identifier: MIT\npragma solidity ^0.8.34;\n\ncontract Guestbook {\n    struct Entry {\n        address sender;\n        string message;\n        uint256 timestamp;\n    }\n\n    Entry[] private entries;\n\n    mapping(address => uint256) public lastPostedAt;\n    mapping(address => bool) private hasPosted;\n\n    event MessagePosted(\n        address indexed sender,\n        string message,\n        uint256 timestamp\n    );\n\n    function postMessage(string calldata _message) external {\n        require(bytes(_message).length > 0, \"Message cannot be empty\");\n\n        require(\n            !hasPosted[msg.sender] ||\n            block.timestamp >= lastPostedAt[msg.sender] + 1 days,\n            \"Wait 24 hours\"\n        );\n\n        entries.push(\n            Entry({\n                sender: msg.sender,\n                message: _message,\n                timestamp: block.timestamp\n            })\n        );\n\n        lastPostedAt[msg.sender] = block.timestamp;\n        hasPosted[msg.sender] = true;\n\n        emit MessagePosted(msg.sender, _message, block.timestamp);\n    }\n\n    function getEntryCount() external view returns (uint256) {\n        return entries.length;\n    }\n\n    function getEntry(uint256 index)\n        external\n        view\n        returns (address sender, string memory message, uint256 timestamp)\n    {\n        require(index < entries.length, \"Entry does not exist\");\n\n        Entry storage entry = entries[index];\n\n        return (entry.sender, entry.message, entry.timestamp);\n    }\n}\n"
+      }
+    }
+  }
+}
