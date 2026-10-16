@@ -1,0 +1,49 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_34-59719f79b7090f27d38a027d0f9174b2c03eccac",
+  "solcVersion": "0.8.34",
+  "solcLongVersion": "0.8.34+commit.80d5c536",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.19.0"
+  },
+  "userSourceNameMap": {
+    "contracts/SimpleEscrow.sol": "project/contracts/SimpleEscrow.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "osaka",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/SimpleEscrow.sol": {
+        "content": "\n// SPDX-License-Identifier: MIT\npragma solidity ^0.8.34;\n\ncontract SimpleEscrow {\n    enum State {\n        None,\n        Funded,\n        Delivered,\n        Released,\n        Cancelled\n    }\n\n    address public client;\n    address public freelancer;\n\n    uint256 public amount;\n    uint256 public owed;\n\n    State public state;\n\n    event EscrowFunded(\n        address indexed client,\n        address indexed freelancer,\n        uint256 amount\n    );\n\n    event WorkDelivered();\n\n    event PaymentReleased(uint256 amount);\n\n    event Refunded(uint256 amount);\n\n    event Withdrawal(address indexed recipient, uint256 amount);\n\n    constructor(address _freelancer) {\n        require(_freelancer != address(0), \"Invalid freelancer\");\n        require(_freelancer != msg.sender, \"Client cannot be freelancer\");\n\n        client = msg.sender;\n        freelancer = _freelancer;\n        state = State.None;\n    }\n\n    function fund() external payable {\n        require(msg.sender == client, \"Only client\");\n        require(state == State.None, \"Invalid state\");\n        require(msg.value > 0, \"Amount must be positive\");\n\n        amount = msg.value;\n        state = State.Funded;\n\n        emit EscrowFunded(client, freelancer, amount);\n    }\n\n    function markDelivered() external {\n        require(msg.sender == freelancer, \"Only freelancer\");\n        require(state == State.Funded, \"Invalid state\");\n\n        state = State.Delivered;\n\n        emit WorkDelivered();\n    }\n\n    function releasePayment() external {\n        require(msg.sender == client, \"Only client\");\n        require(state == State.Delivered, \"Invalid state\");\n\n        state = State.Released;\n        owed = amount;\n\n        emit PaymentReleased(amount);\n    }\n\n    function cancel() external {\n        require(msg.sender == client, \"Only client\");\n        require(state == State.Funded, \"Invalid state\");\n\n        state = State.Cancelled;\n        owed = amount;\n\n        emit Refunded(amount);\n    }\n\n    function withdraw() external {\n        require(owed > 0, \"Nothing to withdraw\");\n\n        uint256 payment = owed;\n        owed = 0;\n\n        if (state == State.Released) {\n            require(msg.sender == freelancer, \"Only freelancer\");\n        } else if (state == State.Cancelled) {\n            require(msg.sender == client, \"Only client\");\n        } else {\n            revert(\"Invalid state\");\n        }\n\n        (bool success, ) = payable(msg.sender).call{value: payment}(\"\");\n        require(success, \"Transfer failed\");\n\n        emit Withdrawal(msg.sender, payment);\n    }\n}\n"
+      }
+    }
+  }
+}

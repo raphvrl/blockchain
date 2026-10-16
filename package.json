@@ -2,6 +2,9 @@
   "name": "blockchain",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "frontend": "npm --prefix frontend run dev"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.1.8",
     "@nomicfoundation/hardhat-toolbox-viem": "^5.0.7",

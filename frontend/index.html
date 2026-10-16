@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SimpleEscrow — test</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="top">
+        <div>
+          <p class="eyebrow">Base Sepolia · chain 84532</p>
+          <h1>SimpleEscrow</h1>
+        </div>
+        <div class="wallet">
+          <span id="network-badge" class="badge">Réseau inconnu</span>
+          <button id="connect" type="button">Connecter MetaMask</button>
+        </div>
+      </header>
+
+      <p class="hint">
+        Le contrat déployé a un freelance Hardhat que tu ne contrôles pas.
+        Pour tester tout le flux, déploie un nouvel escrow avec l’adresse d’un
+        <strong>deuxième compte MetaMask</strong>, puis change de compte.
+      </p>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Portefeuille</h2>
+          <dl>
+            <div><dt>Compte</dt><dd id="account">—</dd></div>
+            <div><dt>Rôle</dt><dd id="role">—</dd></div>
+            <div><dt>Solde</dt><dd id="balance">—</dd></div>
+          </dl>
+        </article>
+
+        <article class="card">
+          <h2>Contrat</h2>
+          <label>
+            Adresse du contrat
+            <input id="contract-address" type="text" spellcheck="false" />
+          </label>
+          <div class="row">
+            <button id="load" type="button">Charger</button>
+            <a id="basescan" href="#" target="_blank" rel="noreferrer">BaseScan</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Déployer un nouvel escrow</h2>
+          <label>
+            Adresse du freelance
+            <input id="freelancer-address" type="text" spellcheck="false" placeholder="0x…" />
+          </label>
+          <button id="deploy" type="button">Déployer (tu seras le client)</button>
+        </article>
+      </section>
+
+      <section class="card state-card">
+        <h2>État on-chain</h2>
+        <div class="steps" id="steps">
+          <span data-state="0">None</span>
+          <span data-state="1">Funded</span>
+          <span data-state="2">Delivered</span>
+          <span data-state="3">Released</span>
+          <span data-state="4">Cancelled</span>
+        </div>
+        <dl class="stats">
+          <div><dt>Client</dt><dd id="client">—</dd></div>
+          <div><dt>Freelance</dt><dd id="freelancer">—</dd></div>
+          <div><dt>Montant</dt><dd id="amount">—</dd></div>
+          <div><dt>Owed</dt><dd id="owed">—</dd></div>
+          <div><dt>ETH dans le contrat</dt><dd id="contract-balance">—</dd></div>
+        </dl>
+      </section>
+
+      <section class="card">
+        <h2>Actions</h2>
+        <label>
+          Montant ETH (pour fund)
+          <input id="fund-amount" type="text" value="0.001" />
+        </label>
+        <div class="actions">
+          <div class="action">
+            <button id="fund" type="button">fund</button>
+            <p>Client · état None</p>
+          </div>
+          <div class="action">
+            <button id="mark-delivered" type="button">markDelivered</button>
+            <p>Freelance · état Funded</p>
+          </div>
+          <div class="action">
+            <button id="cancel" type="button">cancel</button>
+            <p>Client · état Funded</p>
+          </div>
+          <div class="action">
+            <button id="release" type="button">releasePayment</button>
+            <p>Client · état Delivered</p>
+          </div>
+          <div class="action">
+            <button id="withdraw" type="button">withdraw</button>
+            <p>Freelance si Released, client si Cancelled</p>
+          </div>
+        </div>
+      </section>
+
+      <p id="status" class="status" hidden></p>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
